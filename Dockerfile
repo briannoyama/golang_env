@@ -4,8 +4,9 @@ MAINTAINER github/briannoyama
 RUN  apt-get update --fix-missing                                            &&\
      apt-get install -y --no-install-recommends apt-utils
 
+ENV DEBIAN_FRONTEND noninteractive
 #Install SDL2
-COPY keyboard /etc/default/keyboard
+
 RUN  apt-get install -y --no-install-recommends                                \
      mesa-utils                                                                \
      xserver-xorg-video-all                                                    \
@@ -18,7 +19,7 @@ RUN  apt-get install -y --no-install-recommends                                \
      dbus                                                                    &&\
      dbus-uuidgen > /etc/machine-id
 
-ARG  VERSION=1.10
+ARG  VERSION=1.12
 ENV  VERSION ${VERSION}
 ENV  PATH=$PATH:/usr/local/go/bin
 
@@ -29,13 +30,18 @@ RUN  apt-get install -y --no-install-recommends curl git ca-certificates     &&\
      tar -C /usr/local -xzf go$VERSION.linux-amd64.tar.gz                    &&\
      rm go${VERSION}.linux-amd64.tar.gz
 
-#Install Atom IDE
-RUN  curl -Lo atom-amd64.deb https://atom.io/download/deb                    &&\
-     apt install -y ./atom-amd64.deb                                         &&\
-     rm atom-amd64.deb                                                       &&\
-     apm install go-plus                                                       \
-     platformio-ide-terminal                                                   \
-     go-debug                                                                &&\
-     go get -u github.com/derekparker/delve/cmd/dlv
+#Install Vim IDE
+COPY .vimrc /usr/share/nvim/sysinit.vim
+RUN  apt-get install -y software-properties-common python3-dev               &&\
+     add-apt-repository ppa:neovim-ppa/stable                                &&\
+     apt-get update                                                          &&\
+     apt-get install -y neovim                                               &&\
+     curl -fLo root/.local/share/nvim/site/autoload/plug.vim --create-dirs     \
+     https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim     &&\
+     nvim --headless +PlugInstall +qa                                        &&\
+     tar -zcvf go.tar.gz /root/go                                            &&\
+     rm -R /root/go
 
 WORKDIR /root/go
+
+# sudo docker build golang_env -t go_env 
