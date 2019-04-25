@@ -45,3 +45,4 @@ RUN  apt-get install -y software-properties-common python3-dev               &&\
 WORKDIR /root/go
 
 # sudo docker build golang_env -t go_env 
+# Install on host for arrows for airline: apt-get isntall fonts-powerline

@@ -1,28 +1,40 @@
 call plug#begin('~/.vim/plugged')
 
-Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' }
+Plug 'fatih/vim-go', {'tag': '*', 'do': ':GoUpdateBinaries' }
 Plug 'jodosha/vim-godebug'
 Plug 'fatih/molokai'
 Plug 'ctrlpvim/ctrlp.vim'
-" Creates a source code navigation bar.
-" Plug 'majutsushi/tagbar' Not sure if I actually want this...
-" Status line at bottom of vim.
+"Creates a source code navigation bar.
+"Plug 'majutsushi/tagbar' Not sure if I actually want this...
+"Status line at bottom of vim.
 Plug 'vim-airline/vim-airline'
 
-" For showing lines with errors
-" Plug 'w0rp/ale' Electing against this for now doesn't seem worth it.
+"For showing lines with errors
+"Plug 'w0rp/ale' Electing against this for now doesn't seem worth it.
 
-" Autocomplete
+"Autocomplete
 Plug 'Shougo/deoplete.nvim'
 Plug 'zchee/deoplete-go', { 'do': 'make'}
 
-" For a file tree
+"For a file tree
 Plug 'scrooloose/nerdtree'
 
 call plug#end()
 
+
+let mapleader = ","
+
+
+"Recommendations from vim-go
 set autowrite
 set showcmd
+
+
+"Jump between errors in quickfix list
+map <C-n> :cnext<CR>
+map <C-m> :cprevious<CR>
+nnoremap <leader>a :cclose<CR>
+
 
 " runs :GoBuild or :GoTestCompile based on file name ending with "_test.go" or ".go"
 function! s:build_go_files()
@@ -52,7 +64,9 @@ let g:rehash256 = 1
 let g:molokai_original = 1
 colorscheme molokai
 
+let g:go_metalinter_enabled = ['vet', 'golint', 'errcheck']
 let g:go_metalinter_autosave = 1
+let g:go_metalinter_deadline = "5s"
 
 autocmd Filetype go command! -bang A call go#alternate#Switch(<bang>0, 'edit')
 autocmd Filetype go command! -bang AV call go#alternate#Switch(<bang>0, 'vsplit')
@@ -63,14 +77,10 @@ autocmd FileType go nmap <Leader>i <Plug>(go-info)
 
 let g:go_auto_sameids = 1
 
-" Error and warning signs.
-let g:ale_sign_error = '⤫'
-let g:ale_sign_warning = '⚠'
-
 " Enable integration with airline.
-let g:airline#extensions#ale#enabled = 1
+"let g:airline#extensions#ale#enabled = 1
 
-autocmd FileType go nmap <leader>gt :GoDeclsDir<cr>
+autocmd FileType go nmap <leader>gt :GoDeclsDir<CR>
 
 let g:go_auto_type_info = 1
 
@@ -82,10 +92,14 @@ let g:deoplete#sources#go#sort_class = ['package', 'func', 'type', 'var', 'const
 " g:deoplete#sources#go#cgo
 
 let g:airline#extensions#tabline#enabled = 1
+let g:airline_powerline_fonts = 1
 
 " Auto open and close if nerd tree is the only open pane
-autocmd vimenter * NERDTree
-autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif
+nnoremap <Leader>f :NERDTreeToggle<Enter>
+let NERDTreeQuitOnOpen = 1
+let NERDTreeAutoDeleteBuffer = 1
+let NERDTreeMinimalUI = 1
+let NERDTreeDirArrows = 1
 
 "Copy and paste from same clipboard as OS
 set clipboard=unnamed
@@ -95,22 +109,18 @@ set mouse=a
 set bs=2
 
 "Move through split screens easier.
-map <c-j> <c-w>j
-map <c-k> <c-w>k
-map <c-l> <c-w>l
-map <c-h> <c-w>h
+map <leader>j <c-w>j
+map <leader>k <c-w>k
+map <leader>l <c-w>l
+map <leader>h <c-w>h
 
 "Move through tabs easier.
-map <c-,> :tabprevious<CR>
-map <c-.> :tabnext<CR>
+nnoremap <leader>, :bprevious<CR>
+nnoremap <leader>. :bnext<CR>
 
 "Indent more easily
 vnoremap < <gv  " better indentation
 vnoremap > >gv  " better indentation
-
-"Highlight extra spaces as red.
-autocmd ColorScheme * highlight ExtraWhitespace ctermbg=red guibg=red
-au InsertLeave * match ExtraWhitespace /\s\+$/
 
 "Line numbers, width of document
 set number
@@ -130,3 +140,6 @@ set undolevels=512
 "Search options
 set hlsearch
 set incsearch
+
+"Toggle Breakpoints
+nnoremap <leader>x :GoToggleBreakpoint<CR>
